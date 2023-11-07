@@ -1,8 +1,8 @@
-import Route from "../../models/routeModel";
-import Schedule from "../../models/scheduleModel";
+const Route = require("../../models/routeModel");
+const Schedule = require("../../models/scheduleModel");
 
 const ownerController = {
-  listRoutes: async (req: any, res: any) => {
+  listRoutes: async function (req, res) {
     try {
       const ownerId = req.userId;
       const routes = await Route.find({ user_id: ownerId })
@@ -13,7 +13,7 @@ const ownerController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  createRoute: async (req: any, res: any) => {
+  createRoute: async function (req, res) {
     try {
       const { permit_id, origin, destination } = req.body;
       const userId = req.userId;
@@ -48,7 +48,7 @@ const ownerController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  getRoute: async (req: any, res: any) => {
+  getRoute: async function (req, res) {
     try {
       const routeId = req.query.id;
       const userId = req.userId;
@@ -75,7 +75,7 @@ const ownerController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  updateRoute: async (req: any, res: any) => {
+  updateRoute: async function (req, res) {
     try {
       const permitId = req.body.permit_id;
       const userId = req.userId;
@@ -103,7 +103,7 @@ const ownerController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  deleteRoute: async (req: any, res: any) => {
+  deleteRoute: async function (req, res) {
     try {
       const routeId = req.params.id;
       const userId = req.userId; // Extract user ID from the JWT token
@@ -126,7 +126,7 @@ const ownerController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  addScheduleToRoute: async (req: any, res: any) => {
+  addScheduleToRoute: async function (req, res) {
     try {
       const routeId = req.params.id;
       const { start_time, end_time, origin, destination } = req.body;
@@ -156,4 +156,4 @@ const ownerController = {
   },
 };
 
-export default ownerController;
+module.exports = ownerController;

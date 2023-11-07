@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const routeSchema = new mongoose.Schema({
   permit_id: {
@@ -29,4 +29,4 @@ const routeSchema = new mongoose.Schema({
 
 const Route = mongoose.model("Route", routeSchema);
 
-export default Route;
+module.exports = Route;

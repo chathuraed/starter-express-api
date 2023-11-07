@@ -1,6 +1,6 @@
 // routes/auth.js
 
-import express from "express";
+const express = require('express');
 const router = express.Router();
 import adminController from "../controllers/adminController";
 import { verifyToken } from "../middlewares/authMiddleware";
@@ -19,4 +19,4 @@ router.get("/buses", verifyToken(["admin"]), adminController.listBuses);
 // router.put("/route/:id/update", adminController.updateRoute);
 // router.delete("/route/:id/delete", adminController.deleteRoute);
 
-export default router;
+module.exports = router;

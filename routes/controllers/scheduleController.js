@@ -1,9 +1,8 @@
-import Route from "../../models/routeModel";
-import Schedule from "../../models/scheduleModel";
-import User from "../../models/userModel";
+const Route = require("../../models/routeModel");
+const Schedule = require("../../models/scheduleModel");
 
 const scheduleController = {
-  listSchedules: async (req: any, res: any) => {
+  listSchedules: async function (req, res) {
     try {
       const ownerId = req.userId;
       const routes = await Schedule.find({ user_id: ownerId }).exec();
@@ -12,7 +11,7 @@ const scheduleController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  addScheduleToRoute: async (req: any, res: any) => {
+  addScheduleToRoute: async function (req, res) {
     try {
       const {
         routeId,
@@ -57,4 +56,4 @@ const scheduleController = {
   },
 };
 
-export default scheduleController;
+module.exports = scheduleController;

@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
 const scheduleSchema = new mongoose.Schema({
   route: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Route",
+    ref: 'Route',
     required: true,
   },
   origin: {
@@ -24,10 +24,10 @@ const scheduleSchema = new mongoose.Schema({
   },
   available_at: [{
     type: String,
-    enum: ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+    enum: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
   }],
 });
 
-const Schedule = mongoose.model("Schedule", scheduleSchema);
+const Schedule = mongoose.model('Schedule', scheduleSchema);
 
-export default Schedule;
+module.exports = Schedule;
