@@ -19,11 +19,30 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:8000",
-        description: "Development server",
+        url: "http://localhost:8000/api",
+        description: "Local Development server",
+      },
+      {
+        url: "https://seatwise.cyclic.app/api",
+        description: "Production server",
       },
     ],
-    basePath: '/api',
+    components: {
+      schemas: {
+        UserLogin: {
+          type: "object",
+          properties: {
+            email: {
+              type: "string",
+            },
+            password: {
+              type: "string",
+            },
+          },
+        },
+        // Add more schemas as needed
+      },
+    },
   },
   apis: ["./routes/*.js"],
 };

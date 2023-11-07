@@ -1,25 +1,25 @@
 const express = require("express");
+const cors = require('cors');
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-
 const swaggerUi = require("swagger-ui-express");
-const specs = require("./swagger");
 
-//For env File
 dotenv.config();
 
+const port = process.env.PORT || 8000;
+
+const specs = require("./swagger");
 const routes = require("./routes");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
-
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
-
-const port = process.env.PORT || 8000;
 
 app.get("/", (req, res) => {
   res.send("Hello");
 });
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/api", routes);
 

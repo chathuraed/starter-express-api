@@ -54,7 +54,14 @@ router.post('/register', authController.registerUser);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               type: "object"
+ *               properties:
+ *                  token:
+ *                      type: "string"
+ *                  expiresIn:
+ *                      type: "integer"
+ *                  refreshToken:
+ *                      type: "string"
  *       400:
  *         description: Bad request
  *       401:

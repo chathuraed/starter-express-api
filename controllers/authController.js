@@ -31,7 +31,7 @@ const authController = {
       if (!email || !password) {
         return res
           .status(400)
-          .json({ error: 'Username and password are required.' });
+          .json({ error: 'Email and password are required.' });
       }
 
       const existingUser = await User.findOne({ email });
@@ -63,29 +63,29 @@ const authController = {
       if (!email || !password) {
         return res
           .status(400)
-          .json({ error: 'Username and password are required.' });
+          .json({ error: 'Email and password are required.' });
       }
 
       const user = await User.findOne({ email });
 
       if (!user) {
-        return res.status(401).json({ error: 'Invalid username or password.' });
+        return res.status(401).json({ error: 'Invalid email or password.' });
       }
 
       const passwordMatch = await bcrypt.compare(password, user.password);
 
       if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid username or password.' });
+        return res.status(401).json({ error: 'Invalid email or password.' });
       }
 
       const accessToken = jwt.sign(
-        { userId: user._id, username: user.email, role: user.role },
+        { userId: user._id, email: user.email, role: user.role },
         secretKey,
         { expiresIn: secretExpiry }
       );
 
       const refreshToken = jwt.sign(
-        { userId: user._id, username: user.email, role: user.role },
+        { userId: user._id, email: user.email, role: user.role },
         refreshSecretKey,
         { expiresIn: refreshExpiry }
       );
@@ -123,7 +123,7 @@ const authController = {
       }
 
       const newAccessToken = jwt.sign(
-        { userId: user._id, username: user.email, role: user.role },
+        { userId: user._id, email: user.email, role: user.role },
         secretKey,
         { expiresIn: secretExpiry }
       );
