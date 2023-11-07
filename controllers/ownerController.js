@@ -1,5 +1,5 @@
-const Route = require("../../models/routeModel");
-const Schedule = require("../../models/scheduleModel");
+const Route = require("../models/routeModel");
+const Schedule = require("../models/scheduleModel");
 
 const ownerController = {
   listRoutes: async function (req, res) {

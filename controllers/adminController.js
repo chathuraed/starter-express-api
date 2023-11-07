@@ -1,4 +1,4 @@
-const User = require('../../models/userModel');
+const User = require('../models/userModel');
 
 const adminController = {
   listUsers: async function (req, res) {
