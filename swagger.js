@@ -40,7 +40,24 @@ const options = {
             },
           },
         },
-        // Add more schemas as needed
+        RefreshToken: {
+          type: "object",
+          properties: {
+            refreshToken: {
+              type: "string",
+              description: "The refresh token for the user",
+            },
+          },
+        },
+        User: {
+          type: "object",
+          properties: {
+            accessToken: {
+              type: "string",
+              description: "The new access token for the user",
+            },
+          },
+        },
       },
     },
   },
