@@ -8,7 +8,7 @@ const ownerController = {
       const routes = await Route.find({ user_id: ownerId })
         .populate("schedules")
         .exec();
-      return res.status(200).json({ data: routes });
+      return res.status(200).json(routes);
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
