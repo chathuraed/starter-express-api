@@ -5,7 +5,7 @@ const busController = {
     try {
       const ownerId = req.userId;
       const buses = await Bus.find({ user_id: ownerId })
-        // .populate("schedules")
+        .populate("seats")
         .exec();
       return res.status(200).json(buses);
     } catch (err) {
@@ -14,15 +14,14 @@ const busController = {
   },
   createBus: async function (req, res) {
     try {
-      const { busNumber, model, seatingCapacity } = req.body;
+      const { busNumber, model, seatingCapacity, arrangement } = req.body;
       const userId = req.userId;
 
-      if (!busNumber || !model || !seatingCapacity) {
-        return res
-          .status(400)
-          .json({
-            error: "Bus Number, Model, and Seating Capacity are required.",
-          });
+      if (!busNumber || !model || !seatingCapacity || arrangement) {
+        return res.status(400).json({
+          error:
+            "Bus Number, Model, Seating Capacity and Arrangement are required.",
+        });
       }
 
       const existingBus = await Bus.findOne({ busNumber }).exec();
@@ -40,6 +39,7 @@ const busController = {
         busNumber,
         model,
         seatingCapacity,
+        arrangement,
         user_id: userId,
       });
 
