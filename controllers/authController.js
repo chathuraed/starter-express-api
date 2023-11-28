@@ -101,10 +101,10 @@ const authController = {
     }
   },
   refreshToken: async function (req, res) {
-    const { refreshToken } = req.body;
+    const { token } = req.body;
 
     try {
-      const decoded = jwt.verify(refreshToken, refreshSecretKey);
+      const decoded = jwt.verify(token, refreshSecretKey);
 
       const currentTimestamp = Math.floor(Date.now() / 1000);
       if (decoded.exp && decoded.exp <= currentTimestamp) {
@@ -125,13 +125,15 @@ const authController = {
         { expiresIn: secretExpiry }
       );
 
-      const refreshToken = jwt.sign(
+      const newRefreshToken = jwt.sign(
         { userId: user._id, email: user.email, role: user.role },
         refreshSecretKey,
         { expiresIn: refreshExpiry }
       );
 
-      res.status(200).json({ token: newAccessToken, refreshToken });
+      res
+        .status(200)
+        .json({ token: newAccessToken, refreshToken: newRefreshToken });
     } catch (error) {
       console.error(error);
       res.status(401).json({ error: "Invalid refresh token" });
