@@ -17,7 +17,7 @@ const busController = {
       const { busNumber, model, seatingCapacity, arrangement } = req.body;
       const userId = req.userId;
 
-      if (!busNumber || !model || !seatingCapacity || arrangement) {
+      if (!busNumber || !model || !seatingCapacity || !arrangement) {
         return res.status(400).json({
           error:
             "Bus Number, Model, Seating Capacity and Arrangement are required.",
