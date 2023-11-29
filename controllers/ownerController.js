@@ -54,9 +54,9 @@ const ownerController = {
       const savedRoute = await newRoute.save();
 
       // Optionally, you can update the assigned bus with the new route
-      // await Bus.findByIdAndUpdate(busId, {
-      //   $set: { route: savedRoute._id },
-      // }).exec();
+      await Bus.findByIdAndUpdate(busId, {
+        $set: { route: savedRoute._id },
+      }).exec();
 
       return res.status(201).json(savedRoute);
     } catch (err) {
