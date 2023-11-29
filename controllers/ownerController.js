@@ -6,6 +6,7 @@ const ownerController = {
     try {
       const ownerId = req.userId;
       const routes = await Route.find({ user_id: ownerId })
+        .populate("bus")
         .populate("schedules")
         .exec();
       return res.status(200).json(routes);
