@@ -15,36 +15,51 @@ const ownerController = {
   },
   createRoute: async function (req, res) {
     try {
-      const { permit_id, origin, destination } = req.body;
+      const { permit_id, origin, destination, busId } = req.body;
       const userId = req.userId;
 
-      if (!permit_id || !origin || !destination) {
-        return res
-          .status(400)
-          .json({ error: "Permit ID, origin, and destination are required." });
+      if (!permit_id || !origin || !destination || !busId) {
+        return res.status(400).json({
+          error: "Permit ID, origin, destination, and bus ID are required.",
+        });
       }
 
       const existingRoute = await Route.findOne({ permit_id }).exec();
 
-      if (existingRoute) {
-        if (existingRoute.user_id !== userId) {
-          return res.status(400).json({
-            error:
-              "A route with the same permit ID already exists for a different user.",
-          });
-        }
+      if (existingRoute && existingRoute.user_id !== userId) {
+        return res.status(400).json({
+          error:
+            "A route with the same permit ID already exists for a different user.",
+        });
       }
 
-      const newRoute = new Route({
+      const existingBusAssigned = await Route.findOne({ bus: busId }).exec();
+
+      if (existingBusAssigned) {
+        return res.status(400).json({
+          error: "The selected bus is already assigned to another route.",
+        });
+      }
+
+      const newRouteData = {
         permit_id,
         origin,
         destination,
         user_id: userId,
-      });
+        bus: busId,
+      };
 
+      const newRoute = new Route(newRouteData);
       const savedRoute = await newRoute.save();
+
+      // Optionally, you can update the assigned bus with the new route
+      await Bus.findByIdAndUpdate(busId, {
+        $set: { route: savedRoute._id },
+      }).exec();
+
       return res.status(201).json(savedRoute);
     } catch (err) {
+      console.error("Error in createRoute:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },

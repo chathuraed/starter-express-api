@@ -19,6 +19,11 @@ const routeSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  bus: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Bus",
+    unique: true,
+  },
   schedules: [
     {
       type: mongoose.Schema.Types.ObjectId,
