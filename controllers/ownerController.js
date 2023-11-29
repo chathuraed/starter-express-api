@@ -79,7 +79,10 @@ const ownerController = {
       const route = await Route.findOne({
         _id: routeId,
         user_id: userId,
-      }).exec();
+      })
+        .populate("bus")
+        .populate("schedules")
+        .exec();
 
       if (!route) {
         return res
