@@ -1,4 +1,5 @@
 const Bus = require("../models/busModel");
+const Seat = require("../models/seatModel");
 
 const busController = {
   listBuses: async function (req, res) {
@@ -14,10 +15,17 @@ const busController = {
   },
   createBus: async function (req, res) {
     try {
-      const { busNumber, model, seatingCapacity, arrangement, busId, seats, userId } =
-        req.body;
+      const {
+        busNumber,
+        model,
+        seatingCapacity,
+        arrangement,
+        seats,
+        busId,
+        userId,
+      } = req.body;
 
-      if (!busNumber || !model || !seatingCapacity || !arrangement || !seats) {
+      if (!busNumber || !model || !seatingCapacity || !arrangement) {
         return res.status(400).json({
           error:
             "Bus Number, Model, Seating Capacity, and Arrangement are required.",
@@ -46,7 +54,20 @@ const busController = {
         existingBus.model = model;
         existingBus.seatingCapacity = seatingCapacity;
         existingBus.arrangement = arrangement;
-        // existingBus.seats = seats;
+
+        // Assuming seats is a 2D array in the request body
+        // Convert seats array to Seat objects
+        const seatsArray = seats.map((row) =>
+          row.map(
+            (seat) => new Seat({ number: seat.number, state: seat.state })
+          )
+        );
+
+        // Save seats to the database
+        const savedSeats = await Seat.insertMany(seatsArray);
+
+        // Update existingBus with the saved seats
+        existingBus.seats = savedSeats.map((seat) => seat._id);
 
         const updatedBus = await existingBus.save();
         return res.status(200).json(updatedBus);
@@ -63,20 +84,30 @@ const busController = {
           }
         }
 
+        // Convert seats array to Seat objects
+        const seatsArray = seats.map((row) =>
+          row.map(
+            (seat) => new Seat({ number: seat.number, state: seat.state })
+          )
+        );
+
+        // Save seats to the database
+        const savedSeats = await Seat.insertMany(seatsArray);
+
         const newBus = new Bus({
           busNumber,
           model,
           seatingCapacity,
           arrangement,
           user_id: userId,
-          // seats,
+          seats: savedSeats.map((seat) => seat._id),
         });
 
         const savedBus = await newBus.save();
         return res.status(201).json(savedBus);
       }
     } catch (err) {
-      return res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" + err });
     }
   },
   getBus: async function (req, res) {
