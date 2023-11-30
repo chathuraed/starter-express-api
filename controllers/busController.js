@@ -12,39 +12,70 @@ const busController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  createBus: async function (req, res) {
+  createOrUpdateBus: async function (req, res) {
     try {
-      const { busNumber, model, seatingCapacity, arrangement } = req.body;
+      const { busNumber, model, seatingCapacity, arrangement, busId, seats } =
+        req.body;
       const userId = req.userId;
 
-      if (!busNumber || !model || !seatingCapacity || !arrangement) {
+      if (!busNumber || !model || !seatingCapacity || !arrangement || !seats) {
         return res.status(400).json({
           error:
-            "Bus Number, Model, Seating Capacity and Arrangement are required.",
+            "Bus Number, Model, Seating Capacity, and Arrangement are required.",
         });
       }
 
-      const existingBus = await Bus.findOne({ busNumber }).exec();
+      // Check if the busId is provided
+      if (busId) {
+        // Update existing bus
+        const existingBus = await Bus.findOne({ _id: busId }).exec();
 
-      if (existingBus) {
-        if (existingBus.user_id !== userId) {
-          return res.status(400).json({
-            error:
-              "A Bus with the same Bus Number already exists for a different user.",
+        if (!existingBus) {
+          return res.status(404).json({
+            error: "Bus not found.",
           });
         }
+
+        // Check if the user has permission to update the bus
+        if (existingBus.user_id.toString() !== userId) {
+          return res.status(403).json({
+            error: "You do not have permission to update this bus.",
+          });
+        }
+
+        existingBus.busNumber = busNumber;
+        existingBus.model = model;
+        existingBus.seatingCapacity = seatingCapacity;
+        existingBus.arrangement = arrangement;
+        existingBus.seats = seats;
+
+        const updatedBus = await existingBus.save();
+        return res.status(200).json(updatedBus);
+      } else {
+        // Create a new bus
+        const existingBus = await Bus.findOne({ busNumber }).exec();
+
+        if (existingBus) {
+          if (existingBus.user_id.toString() !== userId) {
+            return res.status(400).json({
+              error:
+                "A Bus with the same Bus Number already exists for a different user.",
+            });
+          }
+        }
+
+        const newBus = new Bus({
+          busNumber,
+          model,
+          seatingCapacity,
+          arrangement,
+          user_id: userId,
+          seats,
+        });
+
+        const savedBus = await newBus.save();
+        return res.status(201).json(savedBus);
       }
-
-      const newBus = new Bus({
-        busNumber,
-        model,
-        seatingCapacity,
-        arrangement,
-        user_id: userId,
-      });
-
-      const savedBus = await newBus.save();
-      return res.status(201).json(savedBus);
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }

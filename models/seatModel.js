@@ -1,8 +1,12 @@
 const mongoose = require("mongoose");
 
 const seatSchema = new mongoose.Schema({
-  seatNumber: { type: String, unique: true, required: true },
-  status: { type: String, enum: ["available", "booked", "reserved",], default: "available" },
+  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+  number: { type: String },
+  state: {
+    type: String,
+    enum: ["available", "booked", "reserved", "no-seat", "disabled"],
+  },
 });
 
 const Seat = mongoose.model("Seat", seatSchema);
