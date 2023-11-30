@@ -1,12 +1,11 @@
 const Bus = require("../models/busModel");
-const Seat = require("../models/seatModel");
 
 const busController = {
   listBuses: async function (req, res) {
     try {
       const ownerId = req.userId;
       const buses = await Bus.find({ user_id: ownerId })
-        .populate("seats")
+        // .populate("seats")
         .exec();
       return res.status(200).json(buses);
     } catch (err) {
@@ -16,13 +15,13 @@ const busController = {
   createBus: async function (req, res) {
     try {
       const {
+        userId,
+        busId,
         busNumber,
         model,
         seatingCapacity,
         arrangement,
         seats,
-        busId,
-        userId,
       } = req.body;
 
       if (!busNumber || !model || !seatingCapacity || !arrangement) {
@@ -32,36 +31,7 @@ const busController = {
         });
       }
 
-      const createSeatObjects = (seatsData) => {
-        return seatsData.map((seatRow, rowIndex) => {
-          return seatRow.map((seat) => {
-            if (
-              !seat.state ||
-              ![
-                "available",
-                "booked",
-                "reserved",
-                "no-seat",
-                "disabled",
-              ].includes(seat.state)
-            ) {
-              console.error(
-                `Invalid state value for seat ${seat.number}: ${seat.state}`
-              );
-              return null;
-            }
-
-            return seat.number
-              ? new Seat({
-                  row: rowIndex + 1, // Add 1 to make row numbers 1-based
-                  number: seat.number,
-                  state: seat.state,
-                })
-              : null;
-          });
-        });
-      };
-
+      // Check if busId is provided
       if (busId) {
         // Update existing bus
         const existingBus = await Bus.findOne({
@@ -80,13 +50,8 @@ const busController = {
           model,
           seatingCapacity,
           arrangement,
-          seats: [],
+          seats,
         });
-
-        // Save seats to the database, filter out null values
-        existingBus.seats = (
-          await Seat.insertMany(seats.map(createSeatObjects))
-        ).filter((seat) => seat !== null);
 
         const updatedBus = await existingBus.save();
         return res.status(200).json(updatedBus);
@@ -101,26 +66,22 @@ const busController = {
           });
         }
 
-        // Save seats to the database, filter out null values
-        const seatsToSave = createSeatObjects(seats);
-
         const newBus = new Bus({
           busNumber,
           model,
           seatingCapacity,
           arrangement,
           user_id: userId,
-          seats: seatsToSave,
+          seats,
         });
 
         const savedBus = await newBus.save();
         return res.status(201).json(savedBus);
       }
     } catch (err) {
-      return res.status(500).json({ error: "Internal Server Error" + err });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-
   getBus: async function (req, res) {
     try {
       const routeId = req.query.id;

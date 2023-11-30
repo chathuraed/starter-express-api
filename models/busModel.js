@@ -15,7 +15,7 @@ const busSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Route",
     },
-    seats: [{ type: mongoose.Schema.Types.ObjectId, ref: "Seat" }],
+    seats: [{ type: mongoose.Schema.Types.Mixed }], 
   },
   { timestamps: true }
 );
