@@ -93,6 +93,7 @@ const authController = {
 
   refreshToken: async (req, res) => {
     const { token } = req.body;
+    console.log("token", token, req.body);
 
     try {
       const decoded = jwt.verify(token, refreshSecretKey);
