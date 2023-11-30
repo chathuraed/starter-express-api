@@ -7,24 +7,28 @@ const secretExpiry = process.env.SECRET_KEY_EXPIRY;
 const refreshSecretKey = process.env.REFRESH_SECRET_KEY;
 const refreshExpiry = process.env.REFRESH_SECRET_KEY_EXPIRY;
 
-if (!secretKey) {
-  throw new Error("Secret key is not defined.");
+if (!secretKey || !secretExpiry || !refreshSecretKey || !refreshExpiry) {
+  throw new Error("One or more required environment variables are missing.");
 }
 
-if (!secretExpiry) {
-  throw new Error("Access Token Expiration is not defined.");
-}
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { userId: user._id, email: user.email, role: user.role },
+    secretKey,
+    { expiresIn: secretExpiry }
+  );
+};
 
-if (!refreshSecretKey) {
-  throw new Error("Refresh Secret key is not defined.");
-}
-
-if (!refreshExpiry) {
-  throw new Error("Refresh Token Expiration is not defined.");
-}
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { userId: user._id, email: user.email, role: user.role },
+    refreshSecretKey,
+    { expiresIn: refreshExpiry }
+  );
+};
 
 const authController = {
-  registerUser: async function (req, res) {
+  registerUser: async (req, res) => {
     try {
       const { email, password, role } = req.body;
 
@@ -56,7 +60,8 @@ const authController = {
       res.status(500).json({ error: "Registration failed." });
     }
   },
-  loginUser: async function (req, res) {
+
+  loginUser: async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -68,50 +73,31 @@ const authController = {
 
       const user = await User.findOne({ email });
 
-      if (!user) {
+      if (!user || !(await bcrypt.compare(password, user.password))) {
         return res.status(401).json({ error: "Invalid email or password." });
       }
 
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      if (!passwordMatch) {
-        return res.status(401).json({ error: "Invalid email or password." });
-      }
-
-      const accessToken = jwt.sign(
-        { userId: user._id, email: user.email, role: user.role },
-        secretKey,
-        { expiresIn: secretExpiry }
-      );
-
-      const refreshToken = jwt.sign(
-        { userId: user._id, email: user.email, role: user.role },
-        refreshSecretKey,
-        { expiresIn: refreshExpiry }
-      );
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
 
       res.status(200).json({
         token: accessToken,
-        expiresIn: 3600,
-        refreshToken: refreshToken,
+        expiresIn: secretExpiry,
+        refreshToken,
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Login failed." });
     }
   },
-  refreshToken: async function (req, res) {
+
+  refreshToken: async (req, res) => {
     const { token } = req.body;
 
     try {
       const decoded = jwt.verify(token, refreshSecretKey);
 
-      const currentTimestamp = Math.floor(Date.now() / 1000);
-      if (decoded.exp && decoded.exp <= currentTimestamp) {
-        return res.status(401).json({ error: "Refresh token has expired" });
-      }
-
-      const user = await User.findOne({ _id: decoded.userId });
+      const user = await User.findById(decoded.userId);
 
       if (!user) {
         return res
@@ -119,17 +105,8 @@ const authController = {
           .json({ error: "Invalid user associated with the refresh token" });
       }
 
-      const newAccessToken = jwt.sign(
-        { userId: user._id, email: user.email, role: user.role },
-        secretKey,
-        { expiresIn: secretExpiry }
-      );
-
-      const newRefreshToken = jwt.sign(
-        { userId: user._id, email: user.email, role: user.role },
-        refreshSecretKey,
-        { expiresIn: refreshExpiry }
-      );
+      const newAccessToken = generateAccessToken(user);
+      const newRefreshToken = generateRefreshToken(user);
 
       res
         .status(200)
