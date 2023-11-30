@@ -32,10 +32,17 @@ const busController = {
         });
       }
 
+      // Function to create Seat objects
+      const createSeatObjects = (row) =>
+        row.map((seat) => (seat.number ? new Seat(seat) : null));
+
       // Check if the busId is provided
       if (busId) {
         // Update existing bus
-        const existingBus = await Bus.findOne({ _id: busId }).exec();
+        const existingBus = await Bus.findOne({
+          _id: busId,
+          user_id: userId,
+        }).exec();
 
         if (!existingBus) {
           return res.status(404).json({
@@ -43,31 +50,18 @@ const busController = {
           });
         }
 
-        // Check if the user has permission to update the bus
-        if (existingBus.user_id.toString() !== userId) {
-          return res.status(403).json({
-            error: "You do not have permission to update this bus.",
-          });
-        }
+        existingBus.set({
+          busNumber,
+          model,
+          seatingCapacity,
+          arrangement,
+          seats: [],
+        });
 
-        existingBus.busNumber = busNumber;
-        existingBus.model = model;
-        existingBus.seatingCapacity = seatingCapacity;
-        existingBus.arrangement = arrangement;
-
-        // Assuming seats is a 2D array in the request body
-        // Convert seats array to Seat objects
-        const seatsArray = seats.map((row) =>
-          row.map(
-            (seat) => new Seat({ number: seat.number, state: seat.state })
-          )
-        );
-
-        // Save seats to the database
-        const savedSeats = await Seat.insertMany(seatsArray);
-
-        // Update existingBus with the saved seats
-        existingBus.seats = savedSeats.map((seat) => seat._id);
+        // Save seats to the database, filter out null values
+        existingBus.seats = (
+          await Seat.insertMany(seats.map(createSeatObjects))
+        ).filter((seat) => seat !== null);
 
         const updatedBus = await existingBus.save();
         return res.status(200).json(updatedBus);
@@ -75,24 +69,17 @@ const busController = {
         // Create a new bus
         const existingBus = await Bus.findOne({ busNumber }).exec();
 
-        if (existingBus) {
-          if (existingBus.user_id.toString() !== userId) {
-            return res.status(400).json({
-              error:
-                "A Bus with the same Bus Number already exists for a different user.",
-            });
-          }
+        if (existingBus && existingBus.user_id.toString() !== userId) {
+          return res.status(400).json({
+            error:
+              "A Bus with the same Bus Number already exists for a different user.",
+          });
         }
 
-        // Convert seats array to Seat objects
-        const seatsArray = seats.map((row) =>
-          row.map(
-            (seat) => new Seat({ number: seat.number, state: seat.state })
-          )
-        );
-
-        // Save seats to the database
-        const savedSeats = await Seat.insertMany(seatsArray);
+        // Save seats to the database, filter out null values
+        const seatsToSave = (
+          await Seat.insertMany(seats.map(createSeatObjects))
+        ).filter((seat) => seat !== null);
 
         const newBus = new Bus({
           busNumber,
@@ -100,7 +87,7 @@ const busController = {
           seatingCapacity,
           arrangement,
           user_id: userId,
-          seats: savedSeats.map((seat) => seat._id),
+          seats: seatsToSave,
         });
 
         const savedBus = await newBus.save();
@@ -110,6 +97,7 @@ const busController = {
       return res.status(500).json({ error: "Internal Server Error" + err });
     }
   },
+
   getBus: async function (req, res) {
     try {
       const routeId = req.query.id;
