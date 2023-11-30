@@ -32,7 +32,7 @@ const busController = {
         });
       }
 
-      const createSeatObjects = (seatRow) =>
+      const createSeatObjects = (rowNumber, seatRow) =>
         seatRow.map((seat) => {
           if (
             !seat.state ||
@@ -44,7 +44,6 @@ const busController = {
               "disabled",
             ].includes(seat.state)
           ) {
-            // Log or handle invalid state values
             console.error(
               `Invalid state value for seat ${seat.number}: ${seat.state}`
             );
@@ -53,6 +52,7 @@ const busController = {
 
           return seat.number
             ? new Seat({
+                row: rowNumber, // Add row number here
                 number: seat.number,
                 state: seat.state,
               })
