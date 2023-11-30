@@ -34,7 +34,11 @@ const busController = {
 
       // Function to create Seat objects
       const createSeatObjects = (row) =>
-        row.map((seat) => (seat.number ? new Seat(seat) : null));
+        row.map((seat) =>
+          seat.number
+            ? new Seat({ number: seat.number, state: seat.state || "no-seat" })
+            : null
+        );
 
       // Check if the busId is provided
       if (busId) {
