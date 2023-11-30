@@ -12,7 +12,7 @@ const busController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
-  createOrUpdateBus: async function (req, res) {
+  createBus: async function (req, res) {
     try {
       const { busNumber, model, seatingCapacity, arrangement, busId, seats } =
         req.body;
