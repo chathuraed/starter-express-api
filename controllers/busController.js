@@ -14,9 +14,8 @@ const busController = {
   },
   createBus: async function (req, res) {
     try {
-      const { busNumber, model, seatingCapacity, arrangement, busId, seats } =
+      const { busNumber, model, seatingCapacity, arrangement, busId, seats, userId } =
         req.body;
-      const userId = req.userId;
 
       if (!busNumber || !model || !seatingCapacity || !arrangement || !seats) {
         return res.status(400).json({
@@ -47,7 +46,7 @@ const busController = {
         existingBus.model = model;
         existingBus.seatingCapacity = seatingCapacity;
         existingBus.arrangement = arrangement;
-        existingBus.seats = seats;
+        // existingBus.seats = seats;
 
         const updatedBus = await existingBus.save();
         return res.status(200).json(updatedBus);
@@ -70,7 +69,7 @@ const busController = {
           seatingCapacity,
           arrangement,
           user_id: userId,
-          seats,
+          // seats,
         });
 
         const savedBus = await newBus.save();
