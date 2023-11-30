@@ -32,16 +32,32 @@ const busController = {
         });
       }
 
-      // Function to create Seat objects
       const createSeatObjects = (seatRow) =>
-        seatRow.map((seat) =>
-          seat.number
+        seatRow.map((seat) => {
+          if (
+            !seat.state ||
+            ![
+              "available",
+              "booked",
+              "reserved",
+              "no-seat",
+              "disabled",
+            ].includes(seat.state)
+          ) {
+            // Log or handle invalid state values
+            console.error(
+              `Invalid state value for seat ${seat.number}: ${seat.state}`
+            );
+            return null;
+          }
+
+          return seat.number
             ? new Seat({
                 number: seat.number,
-                state: seat.state || "no-seat", // Provide a default value if not present
+                state: seat.state,
               })
-            : null
-        );
+            : null;
+        });
 
       // Check if the busId is provided
       if (busId) {
