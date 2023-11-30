@@ -32,32 +32,35 @@ const busController = {
         });
       }
 
-      const createSeatObjects = (rowNumber, seatRow) =>
-        seatRow.map((seat) => {
-          if (
-            !seat.state ||
-            ![
-              "available",
-              "booked",
-              "reserved",
-              "no-seat",
-              "disabled",
-            ].includes(seat.state)
-          ) {
-            console.error(
-              `Invalid state value for seat ${seat.number}: ${seat.state}`
-            );
-            return null;
-          }
+      const createSeatObjects = (seatsData) => {
+        return seatsData.map((seatRow, rowIndex) => {
+          return seatRow.map((seat) => {
+            if (
+              !seat.state ||
+              ![
+                "available",
+                "booked",
+                "reserved",
+                "no-seat",
+                "disabled",
+              ].includes(seat.state)
+            ) {
+              console.error(
+                `Invalid state value for seat ${seat.number}: ${seat.state}`
+              );
+              return null;
+            }
 
-          return seat.number
-            ? new Seat({
-                row: rowNumber, // Add row number here
-                number: seat.number,
-                state: seat.state,
-              })
-            : null;
+            return seat.number
+              ? new Seat({
+                  row: rowIndex + 1, // Add 1 to make row numbers 1-based
+                  number: seat.number,
+                  state: seat.state,
+                })
+              : null;
+          });
         });
+      };
 
       if (busId) {
         // Update existing bus
@@ -99,9 +102,7 @@ const busController = {
         }
 
         // Save seats to the database, filter out null values
-        const seatsToSave = (
-          await Seat.insertMany(seats.map(createSeatObjects))
-        ).filter((seat) => seat !== null);
+        const seatsToSave = createSeatObjects(seats);
 
         const newBus = new Bus({
           busNumber,
