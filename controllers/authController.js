@@ -100,6 +100,7 @@ const authController = {
       const user = await User.findById(decoded.userId);
 
       if (!user) {
+        console.log("User not found");
         return res
           .status(401)
           .json({ error: "Invalid user associated with the refresh token" });
@@ -113,7 +114,7 @@ const authController = {
         .json({ token: newAccessToken, refreshToken: newRefreshToken });
     } catch (error) {
       console.error(error);
-      res.status(401).json({ error: "Invalid refresh token" });
+      res.status(401).json({ error: error.message });
     }
   },
 };
