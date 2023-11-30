@@ -23,6 +23,7 @@ router.post(
 );
 
 router.get("/buses", verifyToken(["owner"]), busController.listBuses);
+router.get("/bus", verifyToken(["owner"]), busController.getBus);
 router.post(
   "/bus",
   verifyToken(["owner"]),

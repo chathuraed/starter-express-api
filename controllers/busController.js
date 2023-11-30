@@ -84,27 +84,27 @@ const busController = {
   },
   getBus: async function (req, res) {
     try {
-      const routeId = req.query.id;
+      const id = req.query.id;
       const userId = req.userId;
 
-      if (!routeId) {
+      if (!id) {
         return res
           .status(400)
-          .json({ error: "Route ID is required in the query parameters." });
+          .json({ error: "Bus ID is required in the query parameters." });
       }
 
-      const route = await Route.findOne({
-        _id: routeId,
+      const bus = await Bus.findOne({
+        _id: id,
         user_id: userId,
       }).exec();
 
-      if (!route) {
+      if (!bus) {
         return res
           .status(404)
-          .json({ error: "Route not found or access denied" });
+          .json({ error: "Bus not found or access denied" });
       }
 
-      return res.status(200).json(route);
+      return res.status(200).json(bus);
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
     }
