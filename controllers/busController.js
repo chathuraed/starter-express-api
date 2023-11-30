@@ -5,7 +5,7 @@ const busController = {
     try {
       const ownerId = req.userId;
       const buses = await Bus.find({ user_id: ownerId })
-        // .populate("seats")
+        .populate("seats")
         .exec();
       return res.status(200).json(buses);
     } catch (err) {
