@@ -33,10 +33,13 @@ const busController = {
       }
 
       // Function to create Seat objects
-      const createSeatObjects = (row) =>
-        row.map((seat) =>
+      const createSeatObjects = (seatRow) =>
+        seatRow.map((seat) =>
           seat.number
-            ? new Seat({ number: seat.number, state: seat.state || "no-seat" })
+            ? new Seat({
+                number: seat.number,
+                state: seat.state || "no-seat", // Provide a default value if not present
+              })
             : null
         );
 
