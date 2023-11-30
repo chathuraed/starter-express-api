@@ -59,7 +59,6 @@ const busController = {
             : null;
         });
 
-      // Check if the busId is provided
       if (busId) {
         // Update existing bus
         const existingBus = await Bus.findOne({

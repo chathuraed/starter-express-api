@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const seatSchema = new mongoose.Schema({
+  row: { type: Number, required: true },
   number: { type: String, required: false, default: null },
   state: {
     type: String,
