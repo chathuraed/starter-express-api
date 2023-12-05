@@ -79,7 +79,9 @@ const busController = {
         return res.status(201).json(savedBus);
       }
     } catch (err) {
-      return res.status(500).json({ error: "Internal Server Error" });
+      return res
+        .status(500)
+        .json({ error: "Failed to create/update bus. " + err.message });
     }
   },
   getBus: async function (req, res) {
