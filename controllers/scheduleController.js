@@ -1,6 +1,22 @@
 const Route = require("../models/routeModel");
 const Schedule = require("../models/scheduleModel");
 
+const getDayOfWeek = (dateString) => {
+  const daysOfWeek = [
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+  const [day, month, year] = dateString.split("-");
+  const date = new Date(`${month}/${day}/${year}`);
+  const dayOfWeek = date.getDay();
+  return daysOfWeek[dayOfWeek];
+};
+
 const scheduleController = {
   listSchedules: async function (req, res) {
     try {
@@ -72,6 +88,41 @@ const scheduleController = {
       }
     } catch (err) {
       return res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+  findSchedules: async function (req, res) {
+    try {
+      const { date, from, to } = req.body;
+
+      if (!date || !from || !to) {
+        return res.status(400).json({
+          error: "Date, Origin and Destination are required.",
+        });
+      }
+
+      const dayOfWeek = getDayOfWeek(date.toLowerCase());
+
+      const schedules = await Schedule.find({
+        origin: from.id,
+        destination: to.id,
+        available_at: dayOfWeek,
+      }).populate({
+        path: "route",
+        populate: {
+          path: "bus", // Populate the 'bus' field in the 'route' object
+        },
+      });
+
+      if (schedules.length > 0) {
+        return res.status(200).json({ schedules });
+      } else {
+        return res
+          .status(404)
+          .json({ message: "No schedules available for the given criteria." });
+      }
+    } catch (e) {
+      console.error(e);
+      return res.status(500).send("Internal Server Error");
     }
   },
 };

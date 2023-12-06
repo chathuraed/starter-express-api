@@ -1,18 +1,19 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 // Import route handlers
-const authRouter = require('./auth');
-const adminRouter = require('./admin');
-const ownerRouter = require('./owner');
+const authRouter = require("./auth");
+const adminRouter = require("./admin");
+const ownerRouter = require("./owner");
 // const driverRouter = require('./driver');
 // const conductorRouter = require('./conductor');
-// const passengerRouter = require('./passenger');
+const passengerRouter = require("./user");
 
 // Mount the routers
-router.use('/auth', authRouter);
-router.use('/admin', adminRouter);
-router.use('/owner', ownerRouter);
+router.use("/auth", authRouter);
+router.use("/admin", adminRouter);
+router.use("/owner", ownerRouter);
+router.use("/passenger", passengerRouter);
 // router.use('/driver', driverRouter);
 // router.use('/conductor', conductorRouter);
 // router.use('/passenger', passengerRouter);
