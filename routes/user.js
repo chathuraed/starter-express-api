@@ -3,7 +3,7 @@ const { verifyToken } = require("../middlewares/authMiddleware");
 const scheduleController = require("../controllers/scheduleController");
 const router = express.Router();
 
-router.get(
+router.post(
   "/schedules",
   verifyToken(["passenger"]),
   scheduleController.findSchedules
