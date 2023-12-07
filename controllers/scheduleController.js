@@ -114,7 +114,7 @@ const scheduleController = {
       });
 
       if (schedules.length > 0) {
-        return res.status(200).json({ schedules });
+        return res.status(200).json(schedules);
       } else {
         return res
           .status(404)
