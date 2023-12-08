@@ -17,7 +17,7 @@ const ownerController = {
   },
   createRoute: async function (req, res) {
     try {
-      const { permit_id, origin, destination, busId } = req.body;
+      const { permit_id, origin, destination, busId, price } = req.body;
       const userId = req.userId;
 
       if (!permit_id || !origin || !destination || !busId) {
@@ -49,6 +49,7 @@ const ownerController = {
         destination,
         user_id: userId,
         bus: busId,
+        price: price,
       };
 
       const newRoute = new Route(newRouteData);
