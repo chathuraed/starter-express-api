@@ -118,6 +118,34 @@ const authController = {
       res.status(401).json({ error: error.message });
     }
   },
+  getProfile: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      // Find the user in the database by ID
+      const user = await User.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
+      // Depending on your schema design, you may need to populate the profile field
+      // using the appropriate method based on your Mongoose models.
+      // For example, if you have a reference to another collection for the profile:
+      // await user.populate('profile').execPopulate();
+
+      return res.status(200).json({
+        email: user.email,
+        role: user.role,
+        profile: user.profile,
+      });
+    } catch (error) {
+      console.error(error);
+      return res
+        .status(500)
+        .json({ error: "Failed to retrieve user profile." });
+    }
+  },
 };
 
 module.exports = authController;

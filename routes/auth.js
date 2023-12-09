@@ -1,8 +1,8 @@
 // routes/auth.js
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const authController = require('../controllers/authController');
+const authController = require("../controllers/authController");
 
 /**
  * @swagger
@@ -32,8 +32,7 @@ const authController = require('../controllers/authController');
  *       500:
  *         description: Internal server error
  */
-router.post('/register', authController.registerUser);
-
+router.post("/register", authController.registerUser);
 
 /**
  * @swagger
@@ -69,7 +68,7 @@ router.post('/register', authController.registerUser);
  *       500:
  *         description: Internal server error
  */
-router.post('/login', authController.loginUser);
+router.post("/login", authController.loginUser);
 
 /**
  * @swagger
@@ -98,7 +97,9 @@ router.post('/login', authController.loginUser);
  *       500:
  *         description: Internal server error
  */
-router.post('/refresh-token', authController.refreshToken);
+router.post("/refresh-token", authController.refreshToken);
 // router.post('/reset-password', authController.resetPassword);
+
+router.get("/profile", authController.getProfile);
 
 module.exports = router;

@@ -17,6 +17,7 @@
     "mongodb": "^6.2.0",
     "mongoose": "^8.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "ws": "^8.15.0"
   }
 }
