@@ -12,6 +12,7 @@ const port = process.env.PORT || 8000;
 
 const specs = require("./swagger");
 const routes = require("./routes");
+const Booking = require("./models/bookingModel");
 
 const app = express();
 app.use(cors());
@@ -43,12 +44,52 @@ mongoose
       console.log("WebSocket connection established");
 
       // Handle messages from the client
-      ws.on("message", (message) => {
+      ws.on("message", async (message) => {
         console.log("WebSocket message received:", message);
-        // Handle the received message as needed
 
-        // Example: Send a response back to the client
-        ws.send("Hello from the server!");
+        try {
+          // Parse the received JSON message
+          const data = JSON.parse(message);
+
+          // Check the type of the message
+          switch (data.type) {
+            case "initial_data":
+              // Extract relevant data from the message
+              const { booking_date, schedule_id, bus_id } = data.data;
+
+              // Use the extracted data to query the database for booking information
+              const bookings = await Booking.find({
+                booking_date,
+                schedule_id,
+                bus_id,
+              });
+
+              // Merge all booked seats into a single array
+              const allBookedSeats = bookings.reduce(
+                (seats, booking) => seats.concat(booking.selected_seats),
+                []
+              );
+
+              // Handle the merged booked seats as needed
+              console.log("Merged booked seats:", allBookedSeats);
+
+              // Example: Send a response back to the client
+              ws.send(
+                JSON.stringify({
+                  type: "booked_seats",
+                  data: allBookedSeats,
+                })
+              );
+              break;
+
+            // Add more cases for other message types if needed
+
+            default:
+              console.log("Unknown message type:", data.type);
+          }
+        } catch (error) {
+          console.error("Error processing WebSocket message:", error.message);
+        }
       });
 
       // Connection closed
