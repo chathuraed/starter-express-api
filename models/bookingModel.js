@@ -37,7 +37,17 @@ const bookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'cancelled', 'completed',],
+    enum: ["pending", "cancelled", "completed"],
+    required: true,
+  },
+  schedule: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Schedule",
+    required: true,
+  },
+  route: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Route",
     required: true,
   },
 });

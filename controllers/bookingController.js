@@ -58,8 +58,15 @@ const bookingController = {
     try {
       const userId = req.userId;
 
-      // Find bookings based on the user ID
-      const bookings = await Booking.find({ passenger_id: userId });
+      const bookings = await Booking.find({ passenger_id: userId })
+        .populate({
+          path: "schedule",
+          model: "Schedule",
+        })
+        .populate({
+          path: "route",
+          model: "Route",
+        });
 
       return res.status(200).json({ bookings });
     } catch (error) {
