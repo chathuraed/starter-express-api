@@ -122,7 +122,7 @@ const bookingController = {
       // You can use the scheduleIds array to find bookings with those schedule IDs
       const bookings = await Booking.find({
         schedule_id: { $in: scheduleIds },
-        booking_date: date,
+        // booking_date: date,
       });
 
       return res.status(200).json({ bookings: bookings });
