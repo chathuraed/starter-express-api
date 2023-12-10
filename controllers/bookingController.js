@@ -1,4 +1,5 @@
 const Booking = require("../models/bookingModel");
+const Bus = require("../models/busModel");
 const Route = require("../models/routeModel");
 const Schedule = require("../models/scheduleModel");
 
@@ -90,6 +91,38 @@ const bookingController = {
       );
 
       return res.status(200).json({ bookings: populatedBookings });
+    } catch (error) {
+      console.error("Error in getBookings:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+  getBookingsByOwner: async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      const buses = await Bus.find({ user_id: userId }).populate({
+        path: "route",
+        populate: {
+          path: "schedules",
+        },
+      });
+
+      const scheduleIds = buses.reduce((acc, bus) => {
+        if (bus.route && bus.route.schedules) {
+          const schedules = bus.route.schedules.map(schedule => schedule._id);
+          acc.push(...schedules);
+        }
+        return acc;
+      }, []);
+    
+      // Now 'scheduleIds' contains all the schedule IDs from buses associated with the user
+      console.log("Schedule IDs:", scheduleIds);
+    
+      // You can use the scheduleIds array to find bookings with those schedule IDs
+      const bookings = await Booking.find({ schedule_id: { $in: scheduleIds } });
+    
+
+      return res.status(200).json({ bookings: bookings });
     } catch (error) {
       console.error("Error in getBookings:", error);
       return res.status(500).json({ message: "Internal Server Error" });

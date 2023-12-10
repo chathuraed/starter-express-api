@@ -48,13 +48,9 @@ mongoose
         console.log("WebSocket message received:", message);
 
         try {
-          // Parse the received JSON message
           const data = JSON.parse(message);
-
-          // Check the type of the message
           switch (data.type) {
             case "initial_data":
-              // Extract relevant data from the message
               const { booking_date, schedule_id, bus_id } = data.data;
 
               const allSeats = await Booking.find({
@@ -63,16 +59,13 @@ mongoose
                 bus_id,
               });
 
-              // Merge all booked seats into a single array
               const allBookedSeats = allSeats.reduce(
                 (seats, booking) => seats.concat(booking.selected_seats),
                 []
               );
 
-              // Handle the merged booked seats as needed
               console.log("Merged booked seats:", allBookedSeats);
 
-              // Example: Send a response back to the client
               ws.send(
                 JSON.stringify({
                   type: "booked_seats",
@@ -80,8 +73,6 @@ mongoose
                 })
               );
               break;
-
-            // Add more cases for other message types if needed
 
             default:
               console.log("Unknown message type:", data.type);
@@ -91,13 +82,11 @@ mongoose
         }
       });
 
-      // Connection closed
       ws.on("close", () => {
         console.log("WebSocket connection closed");
       });
     });
 
-    // Start the server
     server.listen(port, () => {
       console.log(`Server is Fire at http://localhost:${port}`);
     });
