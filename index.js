@@ -33,8 +33,6 @@ mongoose
   .then(() => {
     console.log("Connected to MongoDB");
 
-    const subscribers = new Map();
-
     // Create an HTTP server
     const server = http.createServer(app);
 
@@ -44,9 +42,6 @@ mongoose
     // WebSocket connection handling
     wss.on("connection", (ws) => {
       console.log("WebSocket connection established");
-
-      // Initialize user-specific subscriptions
-      const userSubscriptions = new Set();
 
       // Handle messages from the client
       ws.on("message", async (message) => {
@@ -58,27 +53,31 @@ mongoose
 
           // Check the type of the message
           switch (data.type) {
-            case "subscribe":
+            case "initial_data":
               // Extract relevant data from the message
               const { booking_date, schedule_id, bus_id } = data.data;
 
-              // Create a key for the Map to identify this subscription
-              const key = `${booking_date}/${schedule_id}/${bus_id}`;
+              // Use the extracted data to query the database for booking information
+              const bookings = await Booking.find({
+                booking_date,
+                schedule_id,
+                bus_id,
+              });
 
-              // Add WebSocket connection to subscribers Map
-              if (!subscribers.has(key)) {
-                subscribers.set(key, new Set());
-              }
-              subscribers.get(key).add(ws);
+              // Merge all booked seats into a single array
+              const allBookedSeats = bookings.reduce(
+                (seats, booking) => seats.concat(booking.selected_seats),
+                []
+              );
 
-              // Add the key to the user's individual subscriptions
-              userSubscriptions.add(key);
+              // Handle the merged booked seats as needed
+              console.log("Merged booked seats:", allBookedSeats);
 
-              // Example: Send a subscription acknowledgment back to the client
+              // Example: Send a response back to the client
               ws.send(
                 JSON.stringify({
-                  type: "subscription_ack",
-                  message: "Subscribed successfully.",
+                  type: "booked_seats",
+                  data: allBookedSeats,
                 })
               );
               break;
@@ -96,69 +95,8 @@ mongoose
       // Connection closed
       ws.on("close", () => {
         console.log("WebSocket connection closed");
-
-        // Remove the user's subscriptions when the connection is closed
-        userSubscriptions.forEach((key) => {
-          if (subscribers.has(key)) {
-            subscribers.get(key).delete(ws);
-            if (subscribers.get(key).size === 0) {
-              subscribers.delete(key);
-            }
-          }
-        });
       });
     });
-
-    // Logic to send updates to subscribers
-    const sendUpdatesToSubscribers = (key, bookedSeats) => {
-      if (subscribers.has(key)) {
-        const subscribersForThisKey = subscribers.get(key);
-        const message = JSON.stringify({
-          type: "booked_seats",
-          data: bookedSeats,
-        });
-
-        // Send updates to all subscribers for this key
-        subscribersForThisKey.forEach((subscriber) => {
-          subscriber.send(message);
-        });
-      }
-    };
-
-    // Sample logic (replace this with your actual logic to get booking updates)
-    setInterval(async () => {
-      try {
-        // Iterate over each subscription and fetch data for each one
-        for (const [key, subscribersForThisKey] of subscribers.entries()) {
-          const [booking_date, schedule_id, bus_id] = key.split("/");
-
-          // Replace this with actual logic to fetch booking data from your database
-          const bookings = await Booking.find({
-            booking_date,
-            schedule_id,
-            bus_id,
-          });
-
-          const allBookedSeats = bookings.reduce(
-            (seats, booking) => seats.concat(booking.selected_seats),
-            []
-          );
-
-          // Send updates to all subscribers for this key
-          const message = JSON.stringify({
-            type: "booked_seats",
-            data: allBookedSeats,
-          });
-
-          // Send updates to all subscribers for this key
-          subscribersForThisKey.forEach((subscriber) => {
-            subscriber.send(message);
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching booking data:", error);
-      }
-    }, 5000); // Repeat every 5 seconds (adjust as needed)
 
     // Start the server
     server.listen(port, () => {
