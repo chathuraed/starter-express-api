@@ -13,7 +13,13 @@ if (!secretKey || !secretExpiry || !refreshSecretKey || !refreshExpiry) {
 
 const generateAccessToken = (user) => {
   return jwt.sign(
-    { userId: user._id, email: user.email, role: user.role },
+    {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+      first_name: user.first_name,
+      last_name: user.last_name,
+    },
     secretKey,
     { expiresIn: secretExpiry }
   );

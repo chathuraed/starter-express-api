@@ -57,15 +57,14 @@ mongoose
               // Extract relevant data from the message
               const { booking_date, schedule_id, bus_id } = data.data;
 
-              // Use the extracted data to query the database for booking information
-              const bookings = await Booking.find({
+              const allSeats = await Booking.find({
                 booking_date,
                 schedule_id,
                 bus_id,
               });
 
               // Merge all booked seats into a single array
-              const allBookedSeats = bookings.reduce(
+              const allBookedSeats = allSeats.reduce(
                 (seats, booking) => seats.concat(booking.selected_seats),
                 []
               );
