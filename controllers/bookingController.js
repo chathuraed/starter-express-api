@@ -65,7 +65,7 @@ const bookingController = {
       const populatedBookings = await Promise.all(
         bookings.map(async (booking) => {
           const schedule = await Schedule.findById(booking.schedule_id);
-          const route = await Route.findById(schedule.route);
+          const route = await Route.findById(schedule.route).populate("bus");
 
           return {
             _id: booking._id,
