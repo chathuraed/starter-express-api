@@ -175,6 +175,26 @@ const ownerController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
   },
+
+  getDashboardData: async function (req, res) {
+    const ownerId = req.userId;
+    try {
+      const ownerId = req.userId;
+
+      const busCount = await Bus.countDocuments({ user_id: ownerId });
+      const routeCount = await Route.countDocuments({ user_id: ownerId });
+
+      const dashboardData = {
+        bus: busCount,
+        route: routeCount,
+      };
+
+      return res.status(200).json(dashboardData);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
 };
 
 module.exports = ownerController;

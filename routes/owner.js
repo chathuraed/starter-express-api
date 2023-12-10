@@ -5,6 +5,7 @@ const scheduleController = require("../controllers/scheduleController");
 const { verifyToken } = require("../middlewares/authMiddleware");
 const busController = require("../controllers/busController");
 
+router.get("/dashboard", verifyToken(["owner"]), ownerController.getDashboardData);
 router.get("/routes", verifyToken(["owner"]), ownerController.listRoutes);
 router.post("/route", verifyToken(["owner"]), ownerController.createRoute);
 router.get("/route", verifyToken(["owner"]), ownerController.getRoute);
