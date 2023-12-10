@@ -99,6 +99,7 @@ const bookingController = {
   getBookingsByOwner: async (req, res) => {
     try {
       const userId = req.userId;
+      const { date } = req.body;
 
       const buses = await Bus.find({ user_id: userId }).populate({
         path: "route",
@@ -109,18 +110,20 @@ const bookingController = {
 
       const scheduleIds = buses.reduce((acc, bus) => {
         if (bus.route && bus.route.schedules) {
-          const schedules = bus.route.schedules.map(schedule => schedule._id);
+          const schedules = bus.route.schedules.map((schedule) => schedule._id);
           acc.push(...schedules);
         }
         return acc;
       }, []);
-    
+
       // Now 'scheduleIds' contains all the schedule IDs from buses associated with the user
       console.log("Schedule IDs:", scheduleIds);
-    
+
       // You can use the scheduleIds array to find bookings with those schedule IDs
-      const bookings = await Booking.find({ schedule_id: { $in: scheduleIds } });
-    
+      const bookings = await Booking.find({
+        schedule_id: { $in: scheduleIds },
+        booking_date: date,
+      });
 
       return res.status(200).json({ bookings: bookings });
     } catch (error) {
