@@ -43,12 +43,10 @@ const bookingSchema = new mongoose.Schema({
   schedule: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Schedule",
-    required: true,
   },
   route: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Route",
-    required: true,
   },
 });
 
