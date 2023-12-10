@@ -30,12 +30,12 @@ const generateRefreshToken = (user) => {
 const authController = {
   registerUser: async (req, res) => {
     try {
-      const { email, password, role } = req.body;
+      const { first_name, last_name, email, password, role } = req.body;
 
-      if (!email || !password) {
+      if (!email || !password || !first_name) {
         return res
           .status(400)
-          .json({ error: "Email and password are required." });
+          .json({ error: "First name, Email and password are required." });
       }
 
       const existingUser = await User.findOne({ email });
@@ -47,6 +47,8 @@ const authController = {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = new User({
+        first_name,
+        last_name,
         email,
         password: hashedPassword,
         role,
