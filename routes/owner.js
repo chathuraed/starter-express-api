@@ -4,8 +4,13 @@ const ownerController = require("../controllers/ownerController");
 const scheduleController = require("../controllers/scheduleController");
 const { verifyToken } = require("../middlewares/authMiddleware");
 const busController = require("../controllers/busController");
+const bookingController = require("../controllers/bookingController");
 
-router.get("/dashboard", verifyToken(["owner"]), ownerController.getDashboardData);
+router.get(
+  "/dashboard",
+  verifyToken(["owner"]),
+  ownerController.getDashboardData
+);
 router.get("/routes", verifyToken(["owner"]), ownerController.listRoutes);
 router.post("/route", verifyToken(["owner"]), ownerController.createRoute);
 router.get("/route", verifyToken(["owner"]), ownerController.getRoute);
@@ -25,10 +30,12 @@ router.post(
 
 router.get("/buses", verifyToken(["owner"]), busController.listBuses);
 router.get("/bus", verifyToken(["owner"]), busController.getBus);
+router.post("/bus", verifyToken(["owner"]), busController.createBus);
+
 router.post(
-  "/bus",
+  "/bookings-by-date",
   verifyToken(["owner"]),
-  busController.createBus
+  bookingController.getBookingsByOwner
 );
 
 module.exports = router;

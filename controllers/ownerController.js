@@ -177,7 +177,6 @@ const ownerController = {
   },
 
   getDashboardData: async function (req, res) {
-    const ownerId = req.userId;
     try {
       const ownerId = req.userId;
 
