@@ -10,6 +10,12 @@ router.post(
   scheduleController.findSchedules
 );
 
+router.get(
+  "/bookings",
+  verifyToken(["passenger"]),
+  bookingController.getBookings
+);
+
 router.post(
   "/book-seat",
   verifyToken(["passenger"]),

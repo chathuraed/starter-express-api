@@ -41,6 +41,7 @@ const bookingController = {
         passenger_id,
         selected_seats,
         total_price, // Add the calculated total price to the booking
+        status: "pending",
       });
 
       await booking.save();
@@ -48,6 +49,19 @@ const bookingController = {
       return res
         .status(201)
         .json({ message: "Booking created successfully", total_price });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+  getBookings: async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      // Find bookings based on the user ID
+      const bookings = await Booking.find({ passenger_id: userId });
+
+      return res.status(200).json({ bookings });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error" });
