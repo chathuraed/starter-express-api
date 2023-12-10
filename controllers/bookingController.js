@@ -56,7 +56,7 @@ const bookingController = {
   },
   getBookings: async (req, res) => {
     try {
-      const { userId } = req.params;
+      const userId = req.userId;
 
       // Find bookings based on the user ID
       const bookings = await Booking.find({ passenger_id: userId });
