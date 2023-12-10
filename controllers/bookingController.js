@@ -1,4 +1,6 @@
 const Booking = require("../models/bookingModel");
+const Route = require("../models/routeModel");
+const Schedule = require("../models/scheduleModel");
 
 const bookingController = {
   createBooking: async (req, res) => {
@@ -58,19 +60,38 @@ const bookingController = {
     try {
       const userId = req.userId;
 
-      const bookings = await Booking.find({ passenger_id: userId })
-        .populate({
-          path: "schedule",
-          model: "Schedule",
-        })
-        .populate({
-          path: "route",
-          model: "Route",
-        });
+      const bookings = await Booking.find({ passenger_id: userId });
 
-      return res.status(200).json({ bookings });
+      const populatedBookings = await Promise.all(
+        bookings.map(async (booking) => {
+          const schedule = await Schedule.findById(booking.schedule_id);
+          const route = await Route.findById(schedule.route);
+
+          return {
+            _id: booking._id,
+            booking_date: booking.booking_date,
+            schedule: {
+              _id: schedule._id,
+              origin: schedule.origin,
+              destination: schedule.destination,
+              start_time: schedule.start_time,
+              end_time: schedule.end_time,
+              available_at: schedule.available_at,
+            },
+            route,
+            price_per_seat: booking.price_per_seat,
+            passenger_id: booking.passenger_id,
+            selected_seats: booking.selected_seats,
+            total_price: booking.total_price,
+            status: booking.status,
+            // Include other booking fields as needed
+          };
+        })
+      );
+
+      return res.status(200).json({ bookings: populatedBookings });
     } catch (error) {
-      console.error(error);
+      console.error("Error in getBookings:", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   },
